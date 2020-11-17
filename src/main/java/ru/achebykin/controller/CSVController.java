@@ -1,5 +1,7 @@
 package ru.achebykin.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,12 +15,15 @@ import ru.achebykin.helper.CSVHelper;
 @RequestMapping("/api/csv")
 public class CSVController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String message = "";
 
         if (CSVHelper.hasCSVFormat(file)) {
             try {
+                logger.debug("Csv file got");
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 return ResponseEntity.status(HttpStatus.OK).body(message);
