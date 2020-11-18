@@ -28,28 +28,19 @@ public class CalculateMetrics {
 
     public void loadFile()
     {
-        /*SparkConf sparkConf = new SparkConf().setAppName("JavaSparkSQL").setMaster("local");
-        JavaSparkContext ctx = new JavaSparkContext(sparkConf);
-        SQLContext sqlContext = new SQLContext(ctx);
-
-        JavaRDD<Helpdesk> helpdeskJavaRDD = ctx.textFile("file.csv").map(
-                line -> {
-                    String[] parts = line.split(";");
-
-                    Helpdesk helpdesk = new Helpdesk(Integer.parseInt(parts[0].trim()), Integer.parseInt(parts[1].trim()), new Date());
-
-                    return helpdesk;
-                });*/
-
-        SparkSession spark = SparkSession.builder()
-                .master("local[1]")
-                .appName("SparkByExamples.com")
-                .getOrCreate();
-        SQLContext sqlContext = spark.sqlContext();
-        //read csv with options
-        Dataset<Row> df = sqlContext.read().option("delimiter", ";").option("header", true).csv("file.csv");
-        df.show();
-        df.printSchema();
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        pool.execute(() ->
+        {
+            SparkSession spark = SparkSession.builder()
+                    .master("local[1]")
+                    .appName("SparkByExamples.com")
+                    .getOrCreate();
+            SQLContext sqlContext = spark.sqlContext();
+            //read csv with options
+            Dataset<Row> df = sqlContext.read().option("delimiter", ";").option("header", true).csv("file.csv");
+            df.createOrReplaceTempView("TAB");
+            sqlContext.sql("select count(*) as cnt from TAB").show();
+        });
     }
 
     public void saveResult(MetricValue metricValue)
