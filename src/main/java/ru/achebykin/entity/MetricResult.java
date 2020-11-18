@@ -14,10 +14,14 @@ public class MetricResult {
     private String metricName;
 
     @Column(name="metric_value")
-    private int metricValue;
+    private String metricValue;
 
 
-    public void setMetricValue(int metricValue) {
+    public void setMetricValue(String metricValue) {
         this.metricValue = metricValue;
+    }
+
+    public void setMetricName(String metricName) {
+        this.metricName = metricName;
     }
 }

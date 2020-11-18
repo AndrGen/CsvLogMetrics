@@ -1,19 +1,23 @@
 package ru.achebykin.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ru.achebykin.component.MetricComponent;
 import ru.achebykin.helper.CSVHelper;
 
-@Controller
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
 @Api(value = "/api/csv")
 @RequestMapping("/api/csv")
 /**
@@ -23,6 +27,9 @@ public class CSVController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private MetricComponent metricComponent;
+
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String message = "";
@@ -30,6 +37,12 @@ public class CSVController {
         if (CSVHelper.hasCSVFormat(file)) {
             try {
                 logger.debug("Csv file got");
+
+                Map<String,String> metricMap = new HashMap<>();
+                metricMap.putIfAbsent("Event Count", "0");
+                metricMap.putIfAbsent("Process Count", "0");
+                metricMap.putIfAbsent("Avg Time Process", "0.0");
+                metricComponent.addMetricResult(metricMap);
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 logger.debug(message);
