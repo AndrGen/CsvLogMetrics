@@ -13,9 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.achebykin.component.MetricComponent;
 import ru.achebykin.helper.CSVHelper;
+import ru.achebykin.model.MetricValue;
+import ru.achebykin.service.CalculateMetrics;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Api(value = "/api/csv")
@@ -38,11 +44,8 @@ public class CSVController {
             try {
                 logger.debug("Csv file got");
 
-                Map<String,String> metricMap = new HashMap<>();
-                metricMap.putIfAbsent("Event Count", "0");
-                metricMap.putIfAbsent("Process Count", "0");
-                metricMap.putIfAbsent("Avg Time Process", "0.0");
-                metricComponent.addMetricResult(metricMap);
+                CalculateMetrics calculateMetrics = new CalculateMetrics(metricComponent);
+
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 logger.debug(message);
