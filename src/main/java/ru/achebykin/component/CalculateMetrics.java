@@ -28,26 +28,33 @@ public class CalculateMetrics implements ICalculateMetrics {
         ForkJoinPool pool = ForkJoinPool.commonPool();
         pool.execute(() ->
         {
+            MetricValue metricValue = new MetricValue();
             SparkSession spark = SparkSession.builder()
                     .master("local[1]")
                     .appName("SparkByExamples.com")
                     .getOrCreate();
             SQLContext sqlContext = spark.sqlContext();
             //read csv with options
-            sqlContext.read().option("delimiter", ";").option("header", true).csv(fileName).createOrReplaceTempView("hd");
-            List<Row> rowList = sqlContext.sql("select count(*) as EventCount from hd").collectAsList();
+            sqlContext.read().option("delimiter", ",").option("header", true).csv(fileName).createOrReplaceTempView("hd");
 
-            MetricValue metricValue = new MetricValue();
-            for (Row row : rowList)
-            {
-                metricValue.setEventCount(Long.toString(row.getAs("EventCount")));
-            }
+            Row row = sqlContext.sql(
+                     "select " +
+                            "   (select count(*) from hd) as EventCount," +
+                            "   (select count(GroupCaseId.CaseId) from (" +
+                            "                                            select CaseId  " +
+                            "                                            from hd " +
+                            "                                            group by CaseId" +
+                            "                                          ) as GroupCaseId" +
+                            "   ) as ProcessCount "
+            ).first();
+            metricValue.setEventCount(Long.toString(row.getAs("EventCount")));
+            metricValue.setProcessCount(Long.toString(row.getAs("ProcessCount")));
 
             saveResult(metricValue);
         });
     }
 
-    private void saveResult(MetricValue metricValue)
+    private void saveResult(@org.jetbrains.annotations.NotNull MetricValue metricValue)
     {
             Map<String, String> metricMap = new HashMap<>();
             metricMap.put("Event Count", metricValue.getEventCount());
