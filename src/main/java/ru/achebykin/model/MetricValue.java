@@ -28,4 +28,10 @@ public class MetricValue {
     public void setAvgTimeProcess(String avgTimeProcess) {
         AvgTimeProcess = avgTimeProcess;
     }
+
+    public MetricValue(String eventCount, String processCount, String avgTimeProcess) {
+        EventCount = eventCount;
+        ProcessCount = processCount;
+        AvgTimeProcess = avgTimeProcess;
+    }
 }

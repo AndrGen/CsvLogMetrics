@@ -1,4 +1,5 @@
 package ru.achebykin.helper;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -14,8 +15,9 @@ public class CSVHelper {
         return true;
     }
 
-    public static void saveCSV(MultipartFile file) throws IOException {
-        File destFile = new File("file.csv");
+    public static String saveCSV(MultipartFile file) throws IOException {
+        String fileName = RequestContextHolder.currentRequestAttributes().getSessionId() + ".csv";
+        File destFile = new File(fileName);
 
         InputStream initialStream = file.getInputStream();
         byte[] buffer = new byte[initialStream.available()];
@@ -24,5 +26,6 @@ public class CSVHelper {
         try (OutputStream outStream = new FileOutputStream(destFile)) {
             outStream.write(buffer);
         }
+        return fileName;
     }
 }

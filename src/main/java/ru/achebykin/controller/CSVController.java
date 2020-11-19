@@ -1,9 +1,6 @@
 package ru.achebykin.controller;
 
 import io.swagger.annotations.Api;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.achebykin.component.MetricComponent;
+import ru.achebykin.facade.ICalculateMetrics;
 import ru.achebykin.helper.CSVHelper;
-import ru.achebykin.service.CalculateMetrics;
+import ru.achebykin.component.CalculateMetrics;
 
 
 @RestController
@@ -30,7 +28,7 @@ public class CSVController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private MetricComponent metricComponent;
+    ICalculateMetrics calculateMetrics;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -40,9 +38,8 @@ public class CSVController {
             try {
                 logger.debug("Csv file got");
 
-                CSVHelper.saveCSV(file);
-
-                CalculateMetrics calculateMetrics = new CalculateMetrics(metricComponent);
+                String fileName = CSVHelper.saveCSV(file);
+                calculateMetrics.calculate(fileName);
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 logger.debug(message);
