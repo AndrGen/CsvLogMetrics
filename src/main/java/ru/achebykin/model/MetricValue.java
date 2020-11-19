@@ -29,6 +29,9 @@ public class MetricValue {
         AvgTimeProcess = avgTimeProcess;
     }
 
+    public MetricValue() {
+    }
+
     public MetricValue(String eventCount, String processCount, String avgTimeProcess) {
         EventCount = eventCount;
         ProcessCount = processCount;

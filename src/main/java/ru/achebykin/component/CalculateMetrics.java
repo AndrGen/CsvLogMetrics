@@ -12,6 +12,7 @@ import ru.achebykin.facade.ICalculateMetrics;
 import ru.achebykin.model.MetricValue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
@@ -33,11 +34,16 @@ public class CalculateMetrics implements ICalculateMetrics {
                     .getOrCreate();
             SQLContext sqlContext = spark.sqlContext();
             //read csv with options
-            Dataset<Row> df = sqlContext.read().option("delimiter", ";").option("header", true).csv(fileName);
-            df.createOrReplaceTempView("TAB");
-            sqlContext.sql("select count(*) as cnt from TAB").show();
+            sqlContext.read().option("delimiter", ";").option("header", true).csv(fileName).createOrReplaceTempView("hd");
+            List<Row> rowList = sqlContext.sql("select count(*) as EventCount from hd").collectAsList();
 
-            saveResult(new MetricValue("0", "0", "0.0"));
+            MetricValue metricValue = new MetricValue();
+            for (Row row : rowList)
+            {
+                metricValue.setEventCount(Long.toString(row.getAs("EventCount")));
+            }
+
+            saveResult(metricValue);
         });
     }
 
