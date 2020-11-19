@@ -24,4 +24,16 @@ public class MetricResult {
     public void setMetricName(String metricName) {
         this.metricName = metricName;
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getMetricName() {
+        return metricName;
+    }
+
+    public String getMetricValue() {
+        return metricValue;
+    }
 }

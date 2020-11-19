@@ -23,6 +23,9 @@ public class CalculateMetrics implements ICalculateMetrics {
     private MetricComponent metricComponent;
 
 
+    /**
+     * @param fileName
+     */
     public void calculate(String fileName)
     {
         ForkJoinPool pool = ForkJoinPool.commonPool();

@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -19,8 +20,12 @@ public class MetricComponent {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public List<MetricResult> getAllMetricResult() {
+        return (List<MetricResult>) entityManager.createQuery("from MetricResult").getResultList();
+    }
+
     public void addMetricResult(Map<String, String> metricMap) {
-        metricMap.keySet().stream().forEach( res ->
+        metricMap.keySet().forEach(res ->
         {
             MetricResult metricResult = new MetricResult();
             metricResult.setMetricName(res);
