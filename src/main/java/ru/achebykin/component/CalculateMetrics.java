@@ -38,17 +38,30 @@ public class CalculateMetrics implements ICalculateMetrics {
             sqlContext.read().option("delimiter", ",").option("header", true).csv(fileName).createOrReplaceTempView("hd");
 
             Row row = sqlContext.sql(
-                     "select " +
+                    "select " +
                             "   (select count(*) from hd) as EventCount," +
-                            "   (select count(GroupCaseId.CaseId) from (" +
-                            "                                            select CaseId  " +
+                            "   (select " +
+                            "          count(GroupCaseId.CaseId) " +
+                            "                                         from (" +
+                            "                                            select CaseId" +
                             "                                            from hd " +
                             "                                            group by CaseId" +
                             "                                          ) as GroupCaseId" +
-                            "   ) as ProcessCount "
+                            "   ) as ProcessCount, " +
+                            "    (select " +
+                            "          (avg(GroupCaseId.DateDiff)) / 1000 / 3600" +
+                            "                                         from (" +
+                            "                                            select " +
+                            "                                               max(unix_timestamp(CompleteTimestamp)) - " +
+                            "                                               min(unix_timestamp(CompleteTimestamp)) as DateDiff" +
+                            "                                            from hd " +
+                            "                                            group by CaseId" +
+                            "                                          ) as GroupCaseId" +
+                            "   ) as AvgTimeProcess "
             ).first();
             metricValue.setEventCount(Long.toString(row.getAs("EventCount")));
             metricValue.setProcessCount(Long.toString(row.getAs("ProcessCount")));
+            metricValue.setAvgTimeProcess(Double.toString(row.getAs("AvgTimeProcess")));
 
             saveResult(metricValue);
         });
