@@ -1,6 +1,5 @@
 package ru.achebykin.component;
 
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
@@ -12,9 +11,9 @@ import ru.achebykin.facade.ICalculateMetrics;
 import ru.achebykin.model.MetricValue;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class CalculateMetrics implements ICalculateMetrics {
@@ -28,7 +27,7 @@ public class CalculateMetrics implements ICalculateMetrics {
      */
     public void calculate(String fileName)
     {
-        ForkJoinPool pool = ForkJoinPool.commonPool();
+        ExecutorService pool = Executors.newFixedThreadPool(1);
         pool.execute(() ->
         {
             MetricValue metricValue = new MetricValue();
