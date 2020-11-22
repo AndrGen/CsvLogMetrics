@@ -27,7 +27,7 @@ public class CalculateMetrics implements ICalculateMetrics {
      */
     public void calculate(String fileName)
     {
-        ExecutorService pool = Executors.newFixedThreadPool(1);
+        ExecutorService pool = Executors.newSingleThreadExecutor();
         pool.execute(() ->
         {
             MetricValue metricValue = new MetricValue();
@@ -67,6 +67,7 @@ public class CalculateMetrics implements ICalculateMetrics {
 
             saveResult(metricValue);
         });
+        pool.shutdown();
     }
 
     private void saveResult(@org.jetbrains.annotations.NotNull MetricValue metricValue)
